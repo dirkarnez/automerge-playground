@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <script src="./@automerge_automerge.2.0.2.min.js"></script>
+    
+    <script>
+
+        window.automerge.then(_automerge => {
+            let doc1 = _automerge.from({
+                tasks: [
+                    { description: "feed fish", done: false },
+                    { description: "water plants", done: false },
+                ],
+            })
+
+            // Create a new thread of execution
+            let doc2 = _automerge.clone(doc1)
+
+            // Now we concurrently make changes to doc1 and doc2
+
+            // Complete a task in doc2
+            doc2 = _automerge.change(doc2, d => {
+                d.tasks[0].done = true
+            })
+
+            // Add a task in doc1
+            doc1 = _automerge.change(doc1, d => {
+                d.tasks.push({
+                    description: "water fish",
+                    done: false,
+                })
+            })
+
+            // Merge changes from both docs
+            doc1 = _automerge.merge(doc1, doc2);
+            doc2 = _automerge.merge(doc2, doc1);
+
+            console.log(JSON.stringify(doc1));
+            console.log(JSON.stringify(doc2));
+
+        })
+
+
+        // // Both docs are merged and identical
+        // assert.deepEqual(doc1, {
+        //     tasks: [
+        //         { description: "feed fish", done: true },
+        //         { description: "water plants", done: false },
+        //         { description: "water fish", done: false },
+        //     ],
+        // })
+
+        // assert.deepEqual(doc2, {
+        //     tasks: [
+        //         { description: "feed fish", done: true },
+        //         { description: "water plants", done: false },
+        //         { description: "water fish", done: false },
+        //     ],
+        // })
+    </script>
+</body>
+
+</html>
